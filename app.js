@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const ejsMate = require('ejs-mate');
 const Camground = require('./models/campground');
 const methodOverride = require('method-override');
 
@@ -20,6 +21,7 @@ db.on('error', console.error.bind(console, 'connection error: '));
 
 const app = express();
 
+app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
