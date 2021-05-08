@@ -6,8 +6,12 @@ const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('connect-flash');
 const AppError = require('./utils/AppErrors');
-const campgrounds = require('./routes/campgrounds/campgrounds');
-const reviews = require('./routes/reviews/reviews');
+const campgroundRoutes = require('./routes/campgrounds/campgrounds');
+const reviewRoutes = require('./routes/reviews/reviews');
+const passport = require('passport');
+const localStrategy = require('passport-local');
+const User = require('./models/user');
+const userRoutes = require('./routes/users/users');
 
 mongoose.connect('mongodb://localhost:27017/v2-yelpCamp', {
     useNewUrlParser: true,
@@ -15,7 +19,6 @@ mongoose.connect('mongodb://localhost:27017/v2-yelpCamp', {
     useCreateIndex: true,
     useFindAndModify: false
 });
-
 const db = mongoose.connection;
 db.once('open', () => {
     console.log('Connected to db!');
@@ -44,7 +47,12 @@ const sessionConfig = {
 }
 app.use(session(sessionConfig))
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 
+passport.use(new localStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.get('/', (req, res) => {
     res.render('home');
@@ -54,10 +62,18 @@ app.use((req, res, next) => {
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
-})
+});
 
-app.use('/campgrounds', campgrounds);
-app.use('/campgrounds/:id/reviews', reviews)
+// app.get('/fakeuser', async (req, res, next) => {
+//     const user = new User({ email: 'newmail@gmail.com', username: 'colttt' })
+//     const newUser = await User.register(user, 'qwerty');
+//     res.send(newUser);
+// })
+
+app.use('/', userRoutes);
+app.use('/campgrounds', campgroundRoutes);
+app.use('/campgrounds/:id/reviews', reviewRoutes)
+
 
 app.all('*', (req, res, next) => {
     next(new AppError("PAGE NOT FOUND!", 404));
