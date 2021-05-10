@@ -1,3 +1,7 @@
+if(process.env.NODE_ENV !== "production"){
+    require('dotenv').config();
+}
+
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -6,12 +10,12 @@ const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('connect-flash');
 const AppError = require('./utils/AppErrors');
-const campgroundRoutes = require('./routes/campgrounds/campgrounds');
-const reviewRoutes = require('./routes/reviews/reviews');
+const campgroundRoutes = require('./routes/campgrounds');
+const reviewRoutes = require('./routes/reviews');
 const passport = require('passport');
 const localStrategy = require('passport-local');
 const User = require('./models/user');
-const userRoutes = require('./routes/users/users');
+const userRoutes = require('./routes/users');
 
 mongoose.connect('mongodb://localhost:27017/v2-yelpCamp', {
     useNewUrlParser: true,
