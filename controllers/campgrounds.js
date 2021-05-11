@@ -1,4 +1,5 @@
 const Camground = require('../models/campground');
+const { cloudinary } = require('../cloudinary/index');
 
 module.exports.index = async (req, res) => {
     const campgrounds = await Camground.find({});
@@ -12,6 +13,7 @@ module.exports.renderNew = (req, res) => {
 module.exports.createCampground = async (req, res) => {
     //if (!req.body.campground) throw new routerError('invalid campground', 400)
     const campground = new Camground(req.body.campground);
+    campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
     campground.author = req.user._id;
     await campground.save();
     req.flash('success', "New campground created!")
@@ -46,6 +48,17 @@ module.exports.renderUpdate = async (req, res) => {
 module.exports.updateCampground = async (req, res) => {
     const { id } = req.params;
     const campground = await Camground.findByIdAndUpdate(id, { ...req.body.campground });
+    const images = req.files.map(f => ({ url: f.path, filename: f.filename }));
+    campground.images.push(...images);
+
+    if (req.body.deleteImages) {
+        for (let filename of req.body.deleteImages) {
+            await cloudinary.uploader.destroy(filename);
+        }
+        await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } })
+    }
+
+    await campground.save();
     req.flash('success', "Campground updated successfully!");
     res.redirect(`/campgrounds/${campground._id}`);
 }

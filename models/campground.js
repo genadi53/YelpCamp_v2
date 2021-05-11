@@ -3,10 +3,19 @@ const { Schema } = mongoose;
 const Review = require('./review')
 const User = require('./user')
 
+const imageSchema = new Schema({
+    url: String,
+    filename: String
+});
+
+imageSchema.virtual('thumbnail').get(function () {
+    return this.url.replace('/upload', '/upload/w_200');
+});
+
 const campgroundSchema = new Schema({
     title: String,
     price: Number,
-    image: String,
+    images: [imageSchema],
     description: String,
     location: String,
     author: {
@@ -18,6 +27,8 @@ const campgroundSchema = new Schema({
         ref: 'Review'
     }]
 });
+
+
 
 campgroundSchema.post('findOneAndDelete', async function (doc) {
     if (doc) {

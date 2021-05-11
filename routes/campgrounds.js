@@ -4,7 +4,8 @@ const catchAsync = require('../utils/catchAsync');
 const { isLoggedIn, verifyAuthor, validateCampground } = require('../middleware');
 const campgroundsController = require('../controllers/campgrounds');
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' })
+const { storage } = require('../cloudinary/index')
+const upload = multer({ storage }); //dest: 'uploads/' for locals
 
 // router.route('/')
 //     .get(catchAsync(campgroundsController.index))
@@ -19,13 +20,13 @@ router.get('/', catchAsync(campgroundsController.index));
 
 router.get('/new', isLoggedIn, campgroundsController.renderNew);
 
-router.post('/', isLoggedIn, validateCampground, catchAsync(campgroundsController.createCampground));
+router.post('/', isLoggedIn, upload.array('image'), validateCampground, catchAsync(campgroundsController.createCampground));
 
 router.get('/:id', catchAsync(campgroundsController.showCampground));
 
 router.get('/:id/edit', isLoggedIn, verifyAuthor, catchAsync(campgroundsController.renderUpdate));
 
-router.put('/:id', isLoggedIn, validateCampground, verifyAuthor, catchAsync(campgroundsController.updateCampground));
+router.put('/:id', isLoggedIn, verifyAuthor, upload.array('image'), validateCampground, catchAsync(campgroundsController.updateCampground));
 
 router.delete('/:id', isLoggedIn, verifyAuthor, catchAsync(campgroundsController.deleteCampground));
 
