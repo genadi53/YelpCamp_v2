@@ -41,7 +41,8 @@ const seedDB = async () => {
             }],
             description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore at fugit deleniti sequi eveniet atque corrupti a, vero nostrum libero omnis magni laboriosam qui! Dolorum, numquam? Nobis quasi labore itaque!',
             price: rand,
-            author: '609648457024120c6ced2c0e'
+            author: '609648457024120c6ced2c0e',
+            geometry: { type: 'Point', coordinates: [cities[rand].longitude, cities[rand].latitude] },
         });
         await campground.save();
     }
