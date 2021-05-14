@@ -20,7 +20,7 @@ const randName = (arr) => arr[Math.floor(Math.random() * arr.length)]
 
 const seedDB = async () => {
     await Camground.deleteMany({});
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 200; i++) {
         let rand = Math.floor(Math.random() * 1000);
         const campground = new Camground({
             location: `${cities[rand].city}, ${cities[rand].state}`,
