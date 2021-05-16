@@ -1,4 +1,4 @@
-const Camground = require('../models/campground');
+const Campground = require('../models/campground');
 const { cloudinary } = require('../cloudinary/index');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapboxToken = process.env.MAPBOX_TOKEN;
@@ -6,7 +6,7 @@ const geocoder = mbxGeocoding({ accessToken: mapboxToken });
 
 
 module.exports.index = async (req, res) => {
-    const campgrounds = await Camground.find({});
+    const campgrounds = await Campground.find({});
     res.render('campgrounds/index', { campgrounds })
 }
 
@@ -22,7 +22,7 @@ module.exports.createCampground = async (req, res) => {
         limit: 1
     }).send();
 
-    const campground = new Camground(req.body.campground);
+    const campground = new Campground(req.body.campground);
     campground.geometry = data.body.features[0].geometry;
     campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
     campground.author = req.user._id;
@@ -34,7 +34,7 @@ module.exports.createCampground = async (req, res) => {
 
 module.exports.showCampground = async (req, res) => {
     const { id } = req.params;
-    const campground = await Camground.findById(id)
+    const campground = await Campground.findById(id)
         .populate({
             path: 'reviews',
             populate: { path: 'author' }
@@ -42,24 +42,24 @@ module.exports.showCampground = async (req, res) => {
 
     if (!campground) {
         req.flash('error', 'Campground not found!');
-        res.redirect('/campgrounds');
+        return res.redirect('/campgrounds');
     }
     res.render('campgrounds/show', { campground })
 }
 
 module.exports.renderUpdate = async (req, res) => {
     const { id } = req.params;
-    const campground = await Camground.findById(id);
+    const campground = await Campground.findById(id);
     if (!campground) {
         req.flash('error', 'Campground not found!');
-        res.redirect('/campgrounds');
+        return res.redirect('/campgrounds');
     }
     res.render('campgrounds/edit', { campground })
 }
 
 module.exports.updateCampground = async (req, res) => {
     const { id } = req.params;
-    const campground = await Camground.findByIdAndUpdate(id, { ...req.body.campground });
+    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     const images = req.files.map(f => ({ url: f.path, filename: f.filename }));
     campground.images.push(...images);
 
@@ -77,7 +77,7 @@ module.exports.updateCampground = async (req, res) => {
 
 module.exports.deleteCampground = async (req, res) => {
     const { id } = req.params;
-    const deletedCampground = await Camground.findByIdAndDelete(id);
+    const deletedCampground = await Campground.findByIdAndDelete(id);
     req.flash('success', "Campground deleted successfully!")
     res.redirect(`/campgrounds`);
 }
